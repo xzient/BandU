@@ -4,8 +4,11 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.util.Log;
@@ -80,14 +83,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         //TextView
-        message1 = (TextView)findViewById(R.id.editText1);
-        message2 = (TextView)findViewById(R.id.editText2);
-        message3 = (TextView)findViewById(R.id.editText3);
+        message1 = findViewById(R.id.editText1);
+        message2 = findViewById(R.id.editText2);
+        message3 = findViewById(R.id.editText3);
         //Buttons
         //Location
-        location = (Button)findViewById(R.id.mapLocation);
+        location = findViewById(R.id.mapLocation);
         //Coordinates
-        coordinates = (Button)findViewById(R.id.mapGetCoordinates);
+        coordinates = findViewById(R.id.mapGetCoordinates);
 
 
 
@@ -95,8 +98,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateLocationUI();
-                getDeviceLocation();
+                //updateLocationUI();
+                //getDeviceLocation();
+
+
+                if (isLocationEnabled(MapsActivity.this)) {
+                    updateLocationUI();
+                    getDeviceLocation();
+                }
+                else {
+                    Toast.makeText(MapsActivity.this, R.string.no_gps, Toast.LENGTH_SHORT).show();
+                }
+
 
             }
         });
@@ -105,10 +118,46 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         coordinates.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getCoordinates();
+                //getCoordinates();
+
+                if (isLocationEnabled(MapsActivity.this)) {
+                    getCoordinates();
+                }
+                else {
+                    Toast.makeText(MapsActivity.this, R.string.no_gps, Toast.LENGTH_SHORT).show();
+                }
+
 
             }
         });
+
+
+    }
+
+
+    /**
+     * Is location enabled. Is GPS enabled or working?
+     */
+
+    public static boolean isLocationEnabled(Context context) {
+        int locationMode;
+        String locationProviders;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            try {
+                locationMode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE);
+
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            return locationMode != Settings.Secure.LOCATION_MODE_OFF;
+
+        }else{
+            locationProviders = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            return !TextUtils.isEmpty(locationProviders);
+        }
 
 
     }
@@ -132,7 +181,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //mMap.addMarker(new MarkerOptions().position(washington).title("Washington, DC"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(washington));
 
-        /**Other Stuff**/
+        /*Other Stuff*/
         getLocationPermission();
 
         //updateLocationUI();
@@ -181,7 +230,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    /******************************/
     /**
      * Prompts the user for permission to use the device location.
      */
