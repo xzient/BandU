@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">CMSC424_PG11</string>
+    <string name="welcome">Welcome</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_signup">Sign Up</string>
+    <string name="no_gps">Your GPS is not disabled or it is not working</string>
+    <string name="passCaptcha">You are not a robot!</string>
+    <string name="noPassCaptcha">You did not pass the captcha prompt!</string>
+    <string name="termsAndConditions">I accept the Terms of Service</string>
 </resources>

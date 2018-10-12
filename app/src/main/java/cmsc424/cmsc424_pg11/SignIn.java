@@ -8,21 +8,34 @@ import android.widget.Button;
 
 public class SignIn extends AppCompatActivity {
     Button logIn;
+    Button signUp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+        //Initiate buttons
+        logIn = findViewById(R.id.buttonLogIn);
+        signUp = findViewById(R.id.buttonSignUp);
 
-        logIn = (Button)findViewById(R.id.buttonLogIn);
-
+        //Function LogIn button
         logIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(SignIn.this, MapsActivity.class));
             }
         });
+
+        //Function SignUp button
+        signUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(SignIn.this, SignUp.class));
+            }
+        });
+
+
     }
 
 
