@@ -70,15 +70,28 @@ public class SignIn extends AppCompatActivity {
             testEmail = email.getText().toString();
             testPassword = password.getText().toString();
 
+            //Check if empty
             if(testEmail.isEmpty() || testPassword.isEmpty()) {
                 Toast.makeText(SignIn.this, "Add your email and password", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+
+
+
+
             mAuth.signInWithEmailAndPassword(testEmail, testPassword)
                     .addOnCompleteListener(SignIn.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
+                            //Verify if email was verified.
+                            if(! mAuth.getCurrentUser().isEmailVerified()) {
+                                Log.w(TAG, "emailNotVerified", task.getException());
+                                Toast.makeText(SignIn.this, "Please verify your email!", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "signInWithEmail:success");

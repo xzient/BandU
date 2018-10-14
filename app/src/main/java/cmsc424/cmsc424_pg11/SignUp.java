@@ -122,8 +122,35 @@ public class SignUp extends AppCompatActivity
 
             //Get values from TextEdits
             final String newEmail = email.getText().toString();
-            String newPassword = password1.getText().toString();
+            final String newPassword = password1.getText().toString();
+            final String newPassword2 = password2.getText().toString();
             final String newName = name.getText().toString();
+
+            //Conditions
+
+
+            //Any box is empty
+            if(newName.isEmpty() || newPassword.isEmpty() || newEmail.isEmpty() || newPassword2.isEmpty()) {
+                Toast.makeText(SignUp.this, "Please fill out all the boxes!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            //CAPTCHA
+            if(!passCaptcha) {
+                Toast.makeText(SignUp.this, "Please verify you are not a robot!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            //Terms and conditions
+            if(!acceptTerms.isChecked()) {
+                Toast.makeText(SignUp.this, "Please check the terms and conditions!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            //Passwords are not the same
+            if(!newPassword.equals(newPassword2)) {
+                Toast.makeText(SignUp.this, "The two passwords you have entered are not the same!", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
 
             mAuth.createUserWithEmailAndPassword(newEmail, newPassword)
@@ -136,6 +163,19 @@ public class SignUp extends AppCompatActivity
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 String userId = user.getUid();
                                 saveUserToData(newEmail, newName, userId);
+
+                                //Send email.
+                                user.sendEmailVerification()
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Log.d(TAG, "Email sent.");
+                                                }
+                                            }
+                                        });
+
+
                                 updateUI(user);
                             } else {
                                 // If sign in fails, display a message to the user.
@@ -177,7 +217,7 @@ public class SignUp extends AppCompatActivity
      */
     public void updateUI(FirebaseUser user) {
         if(user != null) {
-            startActivity(new Intent(SignUp.this, SignIn.class));
+            startActivity(new Intent(SignUp.this, verifyEmailActivity.class));
             //Eventually this should take you to email verification
             //TO DO
         }

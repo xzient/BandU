@@ -7,4 +7,7 @@
     <string name="passCaptcha">You are not a robot!</string>
     <string name="noPassCaptcha">You did not pass the captcha prompt!</string>
     <string name="termsAndConditions">I accept the Terms of Service</string>
+    <string name="checkEmail">A verification link has been sent to your email account</string>
+    <string name="ReturnToSignIn">Return to Sign In page</string>
+    <string name="sendEmailAgain">Send Email Again</string>
 </resources>
