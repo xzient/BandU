@@ -24,8 +24,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.w3c.dom.Text;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignUp extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks,
@@ -55,6 +60,14 @@ public class SignUp extends AppCompatActivity
 
     //TAG
     final String TAG = "SignUp Activity";
+
+
+    //Data
+    public static final String USER = "user";
+    public static final String USER_NAME = "name";
+    public static final String USER_EMAIL = "email";
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference mRef = database.getInstance().getReference("server").child("users");
 
 
     @Override
@@ -108,8 +121,9 @@ public class SignUp extends AppCompatActivity
         public void onClick(View view) {
 
             //Get values from TextEdits
-            String newEmail = email.getText().toString();
+            final String newEmail = email.getText().toString();
             String newPassword = password1.getText().toString();
+            final String newName = name.getText().toString();
 
 
             mAuth.createUserWithEmailAndPassword(newEmail, newPassword)
@@ -120,6 +134,8 @@ public class SignUp extends AppCompatActivity
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "createUserWithEmail:success");
                                 FirebaseUser user = mAuth.getCurrentUser();
+                                String userId = user.getUid();
+                                saveUserToData(newEmail, newName, userId);
                                 updateUI(user);
                             } else {
                                 // If sign in fails, display a message to the user.
@@ -136,6 +152,23 @@ public class SignUp extends AppCompatActivity
 
         }
     };
+
+
+    /**
+     * This function will store the new user in the Firestore DB
+     * @param newEmail
+     * @param newName
+     */
+    public void saveUserToData(String newEmail, String newName, String userID) {
+        Map<String, Object> userToSave = new HashMap<String, Object>();
+        userToSave.put(USER_EMAIL, newEmail);
+        userToSave.put(USER_NAME, newName);
+        //Set city, lat, and long with default values
+        userToSave.put("city", "Washington");
+        userToSave.put("latitude", 38.89511);
+        userToSave.put("longitude", -77.03637);
+        mRef.child(userID).setValue(userToSave);
+    }
 
     public void updateUI(FirebaseUser user) {
         if(user != null) {
@@ -186,8 +219,7 @@ public class SignUp extends AppCompatActivity
 
                                 tvResult.setTextColor(getResources().getColor(R.color.colorWarning));
 
-                                tvResult.setText("Error occurred " +
-                                        "when communicating with the reCAPTCHA service.");
+                                tvResult.setText("Error occurred when communicating with the reCAPTCHA service.");
                                 // Use status.getStatusCode() to determine the exact
                                 // error code. Use this code in conjunction with the
                                 // information in the "Handling communication errors"
