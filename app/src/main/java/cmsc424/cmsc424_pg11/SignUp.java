@@ -59,15 +59,15 @@ public class SignUp extends AppCompatActivity
     EditText password2;
 
     //TAG
-    final String TAG = "SignUp Activity";
+    public static final String TAG = "SignUp";
 
 
     //Data
     public static final String USER = "user";
     public static final String USER_NAME = "name";
     public static final String USER_EMAIL = "email";
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
-    DatabaseReference mRef = database.getInstance().getReference("server").child("users");
+
+    DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("server").child("users");
 
 
     @Override
@@ -165,11 +165,16 @@ public class SignUp extends AppCompatActivity
         userToSave.put(USER_NAME, newName);
         //Set city, lat, and long with default values
         userToSave.put("city", "Washington");
+        userToSave.put("state", "DC");
         userToSave.put("latitude", 38.89511);
         userToSave.put("longitude", -77.03637);
         mRef.child(userID).setValue(userToSave);
     }
 
+    /**
+     * This method will update the UI correctly after clicking sign up
+     * @param user
+     */
     public void updateUI(FirebaseUser user) {
         if(user != null) {
             startActivity(new Intent(SignUp.this, SignIn.class));

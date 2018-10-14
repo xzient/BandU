@@ -32,6 +32,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.util.List;
@@ -46,6 +49,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     TextView message1;
     TextView message2;
     TextView message3;
+
+    //Authentication
+    private FirebaseAuth mAuth;
+    public String mUserID;
+    //Database
+    DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("server").child("users");
 
     //Permission
     private boolean mLocationPermissionGranted;
@@ -62,10 +71,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final String KEY_LOCATION = "location";
     private static final String KEY_CAMERA_POSITION = "camera_position";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        //Authentication
+        mAuth = FirebaseAuth.getInstance();
+        mUserID = mAuth.getUid();
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -138,7 +153,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     /**
      * Is location enabled. Is GPS enabled or working?
      */
-
     public static boolean isLocationEnabled(Context context) {
         int locationMode;
         String locationProviders;
@@ -190,6 +204,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    /**
+     * This function will show the current latitute and longitute.
+     * This function also updates the user's coordinates and city throgh get address.
+     */
     void getCoordinates() {
 
         try {
@@ -254,8 +272,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     /**
      * Gets the current location of the device, and positions the map's camera.
      */
-
-
     private void getDeviceLocation() {
         /*
          * Get the best and most recent location of the device, which may be null in rare
@@ -315,7 +331,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-
+    /**
+     * This functions get the current state and city of a user
+     * It will also update the user's current coordinates and city.
+     * @param context
+     * @param lat
+     * @param lng
+     * @return
+     */
     public String getAddress(Context context, double lat, double lng) {
         Geocoder geocoder = new Geocoder(context, Locale.getDefault());
         try {
@@ -330,6 +353,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             */
 
             message3.setText("You are in " + obj.getLocality() + ", " + obj.getAdminArea());
+
+            //Update user
+            mRef.child(mUserID).child("city").setValue(obj.getLocality());
+            mRef.child(mUserID).child("state").setValue(obj.getAdminArea());
+            mRef.child(mUserID).child("latitude").setValue(lat);
+            mRef.child(mUserID).child("longitude").setValue(lng);
+
 
             return null;
         } catch (IOException e) {
