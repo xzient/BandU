@@ -30,5 +30,23 @@
             android:icon="@drawable/ic_settings_white"/>
     </group>
 
+    <item android:title="Query">
+        <menu>
+            <item
+                android:id="@+id/nav_rock"
+
+                android:title="Rock" />
+            <item
+                android:id="@+id/nav_classical"
+
+                android:title="Classical" />
+
+            android:title="Rock" />
+            <item
+                android:id="@+id/nav_all"
+
+                android:title="All" />
+        </menu>
+    </item>
 
 </menu>
