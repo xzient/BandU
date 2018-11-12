@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,6 +36,8 @@ import java.util.Map;
 public class SignUp extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener{
+
+
 
     //CAPTCHA
     private GoogleApiClient mGoogleApiClient;
@@ -69,11 +72,17 @@ public class SignUp extends AppCompatActivity
 
     DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("server").child("users");
 
+    Toolbar toolbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        setTitle("BandU");
 
         //Authentication
         mAuth = FirebaseAuth.getInstance();
@@ -208,6 +217,7 @@ public class SignUp extends AppCompatActivity
         userToSave.put("state", "DC");
         userToSave.put("latitude", 38.89511);
         userToSave.put("longitude", -77.03637);
+        userToSave.put("ID", userID);
         mRef.child(userID).setValue(userToSave);
     }
 
@@ -242,7 +252,7 @@ public class SignUp extends AppCompatActivity
 
                             if ((status != null) && status.isSuccess()) {
 
-                                tvResult.setTextColor(getResources().getColor(R.color.colorBlack));
+                                //tvResult.setTextColor(getResources().getColor(R.color.colorBlack));
                                 tvResult.setText("Passed CAPTCHA\n");
                                 passCaptcha = true;
                                 // Indicates communication with reCAPTCHA service was

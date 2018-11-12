@@ -8,6 +8,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -49,12 +50,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     TextView message1;
     TextView message2;
     TextView message3;
+    Toolbar toolbar;
 
     //Authentication
     private FirebaseAuth mAuth;
     public String mUserID;
     //Database
     DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("server").child("users");
+
 
     //Permission
     private boolean mLocationPermissionGranted;
@@ -76,6 +79,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        //Toolbar
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        setTitle("BandU");
 
         //Authentication
         mAuth = FirebaseAuth.getInstance();
