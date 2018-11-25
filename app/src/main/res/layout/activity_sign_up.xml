@@ -73,7 +73,7 @@
                 android:ems="10"
                 android:layout_marginBottom="10dp"
                 android:layout_marginTop="10dp"
-                android:background="@color/colorPrimary"
+                android:background="@drawable/rounded_corner_button"
                 android:textColor="@color/colorWhite"
                 android:text="Captcha" />
 
@@ -100,7 +100,7 @@
                 android:ems="10"
                 android:layout_marginBottom="200dp"
                 android:layout_marginTop="10dp"
-                android:background="@color/colorPrimary"
+                android:background="@drawable/rounded_corner_button"
                 android:textColor="@color/colorWhite"
                 android:text="Sign Up" />
 

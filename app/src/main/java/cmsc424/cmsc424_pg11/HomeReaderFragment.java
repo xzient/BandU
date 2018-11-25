@@ -11,8 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -21,11 +24,12 @@ public class HomeReaderFragment extends Fragment {
     private static final String TAG = "HomeReaderFragment";
 
     //Variables
-    private ArrayList<String> mNames = new ArrayList<>();
+    private ArrayList<String> mMessages = new ArrayList<>();
     private ArrayList<String> mTitles = new ArrayList<>();
     private ArrayList<String> mGenres = new ArrayList<>();
 
     private RecyclerView mRecyclerView;
+    private RecyclerViewAdapter adapter;
     private DatabaseReference mDataBase;
 
     @Nullable
@@ -40,26 +44,59 @@ public class HomeReaderFragment extends Fragment {
 
         mRecyclerView = view.findViewById(R.id.recycler_view_reader);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 
+        adapter = new RecyclerViewAdapter(getContext(), mTitles, mMessages, mGenres);
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+
+
+        mDataBase.addListenerForSingleValueEvent(valueEventListener);
 
         return view;
     }
 
-    private void getData() {
+    ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            //duck.clear();
+            mTitles.clear();
+            //mMessages.clear();
+            mGenres.clear();
+            if (dataSnapshot.exists()) {
+                //Toast.makeText(BaseActivityReader.this, "Hello", Toast.LENGTH_SHORT).show();
 
-        initReccyclerView();
-    }
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+
+                    snapshot.getValue();
 
 
-    private void initReccyclerView() {
-        Log.d(TAG, "initReccyclerView: init recyclerview.");
-        RecyclerView recyclerView = getView().findViewById(R.id.recycler_view_reader2); // This might be wrong by view
-        //RecyclerViewAdapter adapter = new RecyclerViewAdapter(getContext()); // to do
-        //recyclerView.setAdapter(adapter);
-        //recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));//
-    }
+                    String singleTitle = snapshot.child("title").getValue(String.class);
+                    //Toast.makeText(BaseActivityReader.this, singleTitle, Toast.LENGTH_SHORT).show();
+                    //duck.add(singleTitle);
+                    mTitles.add(singleTitle);
+
+                    String singleMessage = snapshot.child("message").getValue(String.class);
+                    mMessages.add(singleMessage);
+
+                    String singleGenre = snapshot.child("genre").getValue(String.class);
+                    mGenres.add(singleGenre);
+
+                }
+                adapter.notifyDataSetChanged();
+
+            }
+        }
+
+
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
 
 
 

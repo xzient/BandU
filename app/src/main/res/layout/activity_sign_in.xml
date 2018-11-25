@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
+
     tools:context=".SignIn">
 
     <android.support.v7.widget.Toolbar
@@ -61,11 +61,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@color/colorPrimary"
+            android:background="@drawable/rounded_corner_button"
             android:text="Log In"
             android:textColor="@color/colorWhite"
             android:layout_marginLeft="100dp"
             android:layout_marginRight="100dp"
+
             />
 
         <Button
@@ -73,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@color/colorPrimary"
+            android:background="@drawable/rounded_corner_button"
             android:text="Sign Up"
             android:textColor="@color/colorWhite"
             android:layout_marginLeft="100dp"

@@ -20,6 +20,10 @@
     <string name="nav_settings">Settings</string>
 
 
+    <!--Subscriptions-->
+    <string name="subscriptions_current">Current Subscriptions</string>
+    <string name="subscriptions_add">Add Subscriptions</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>

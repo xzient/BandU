@@ -30,7 +30,7 @@
             android:icon="@drawable/ic_settings_white"/>
     </group>
 
-    <item android:title="Query">
+    <!--item android:title="Query">
         <menu>
             <item
                 android:id="@+id/nav_rock"
@@ -47,6 +47,6 @@
 
                 android:title="All" />
         </menu>
-    </item>
+    </item-->
 
 </menu>

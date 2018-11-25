@@ -8,4 +8,5 @@
     <color name="colorWhite2">#99a7a3</color>
     <color name="colorBackground">#3b4e4e</color>
     <color name="colorWarning">#B33A3A</color>
+    <color name="colorTransparent">#00000000</color>
 </resources>

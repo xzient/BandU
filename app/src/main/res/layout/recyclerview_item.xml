@@ -10,7 +10,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="50dp"
         android:orientation="vertical"
         >
 
@@ -21,12 +21,12 @@
             android:text="My Bloody Valentine In DC"
             android:textSize="20sp"/>
 
-        <TextView
+        <!--TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/recycler_view_item_message"
             android:text="My Bloody Valentine In DC message"
-            android:textSize="12sp"/>
+            android:textSize="12sp"/-->
 
         <LinearLayout
             android:layout_width="match_parent"

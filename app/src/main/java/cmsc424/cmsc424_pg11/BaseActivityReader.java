@@ -27,12 +27,13 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
 
     private DrawerLayout drawer;
     DatabaseReference dbMessages;
+    private static final String TAG = "BaseActivityReader";
 
 
     //RecyclerView
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
-    private ArrayList<String> mMessages;
+    //private ArrayList<String> mMessages;
     private ArrayList<String> mTitles;
     private ArrayList<String> mGenres;
     private ArrayList<String> duck;
@@ -48,6 +49,9 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
         setSupportActionBar(toolbar);
         //setTitle("BandU");
 
+
+
+
         drawer = findViewById(R.id.drawer_reader_main);
         NavigationView navigationView = findViewById(R.id.nav_view_reader);
         navigationView.setNavigationItemSelectedListener(this);
@@ -57,28 +61,34 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-
+        /*
         //RecyclerView
         recyclerView = findViewById(R.id.recycler_view_reader);
         recyclerView.setHasFixedSize(true);
 
 
         //Arrays
-        mMessages = new ArrayList<>();
+        //mMessages = new ArrayList<>();
         mTitles = new ArrayList<>();
         mGenres = new ArrayList<>();
         duck = new ArrayList<>();
 
 
-        adapter = new RecyclerViewAdapter(this, mTitles, mMessages, mGenres);
+        adapter = new RecyclerViewAdapter(this, mTitles, mGenres);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 
 
-
         //Get all rock
         dbMessages = FirebaseDatabase.getInstance().getReference("server").child("messages");
+
+
+
+        */
+
+
+
 
         //Query1
 
@@ -92,23 +102,23 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
 
 
 
-        /*
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container,
                     new HomeReaderFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_reader_home);
         }
-        */
+
 
     }
 
-
+    /*
     ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             //duck.clear();
             mTitles.clear();
-            mMessages.clear();
+            //mMessages.clear();
             mGenres.clear();
             if (dataSnapshot.exists()) {
                 //Toast.makeText(BaseActivityReader.this, "Hello", Toast.LENGTH_SHORT).show();
@@ -123,8 +133,8 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
                     //duck.add(singleTitle);
                     mTitles.add(singleTitle);
 
-                    String singleMessage = snapshot.child("message").getValue(String.class);
-                    mMessages.add(singleMessage);
+                    //String singleMessage = snapshot.child("message").getValue(String.class);
+                    //mMessages.add(singleMessage);
 
                     String singleGenre = snapshot.child("genre").getValue(String.class);
                     mGenres.add(singleGenre);
@@ -135,20 +145,28 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
             }
         }
 
+
+
         @Override
         public void onCancelled(DatabaseError databaseError) {
 
         }
     };
 
+    */
 
 
+    /**
+     * Navigation Selection
+     * @param item
+     * @return
+     */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         switch (item.getItemId()) {
             case R.id.nav_reader_home:
-                //TO DO
+                getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new HomeReaderFragment()).addToBackStack(TAG).commit();
                 break;
             case R.id.nav_reader_map:
                 startActivity(new Intent(BaseActivityReader.this, MapsActivity.class));
@@ -157,11 +175,13 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
                 //TO DO
                 break;
             case R.id.nav_reader_subscriptions:
-                //TO DO
+                getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new SubscriptionsFragment()).addToBackStack(TAG).commit();
                 break;
             case R.id.nav_reader_settings:
                 //TO DO
                 break;
+
+                /*
             case R.id.nav_rock:
                 Query query1 = FirebaseDatabase.getInstance().getReference("server").child("messages")
                         .orderByChild("genre").equalTo("rock");
@@ -180,6 +200,8 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
 
                 dbMessages.addListenerForSingleValueEvent(valueEventListener);
                 break;
+                */
+
 
         }
 
