@@ -166,18 +166,26 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
 
         switch (item.getItemId()) {
             case R.id.nav_reader_home:
+                setTitle("BandU");
                 getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new HomeReaderFragment()).addToBackStack(TAG).commit();
                 break;
             case R.id.nav_reader_map:
                 startActivity(new Intent(BaseActivityReader.this, MapsActivity.class));
+                setTitle("Map");
                 break;
             case R.id.nav_reader_search:
+                setTitle("Search");
                 //TO DO
                 break;
             case R.id.nav_reader_subscriptions:
+                setTitle("Subscriptions");
                 getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new SubscriptionsFragment()).addToBackStack(TAG).commit();
                 break;
+            case R.id.nav_reader_user_parameters:
+                setTitle("User Parameters");
+                break;
             case R.id.nav_reader_settings:
+                setTitle("Settings");
                 //TO DO
                 break;
 
