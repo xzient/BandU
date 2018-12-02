@@ -1,6 +1,7 @@
 package cmsc424.cmsc424_pg11;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,7 +23,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class CurrentSubscriptionsFragment extends Fragment {
@@ -38,8 +38,10 @@ public class CurrentSubscriptionsFragment extends Fragment {
     private DatabaseReference mDataBase;
     private FirebaseUser mCurrentFirebaseUser;
     private String mUserId;
+    private Map <String, String> mDBGenres;
 
-    Button buttonGenres, buttonLocations;
+    private Button buttonGenres, buttonLocations;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -69,15 +71,41 @@ public class CurrentSubscriptionsFragment extends Fragment {
         mDataBase = FirebaseDatabase.getInstance().getReference("server").child("genres");
         mDataBase.keepSynced(true);
 
+
         //mDataBase.addListenerForSingleValueEvent(valueEventListener);
 
         buttonLocations.setOnClickListener(onClickListener);
         buttonGenres.setOnClickListener(onClickListener);
 
-        /*
-        Query currentGenresSubsQuery = FirebaseDatabase.getInstance().getReference("server")
-                .child("genres").orderByChild("subscription").equalTo(mUserId);
-        */
+
+
+        mDataBase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mDBGenres = (Map<String, String>) dataSnapshot.getValue();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                Log.e(TAG, "onScrollStateChanged: Porblem");
+            }
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+
+        });
+
+
+
         return view;
     }
 
@@ -93,11 +121,11 @@ public class CurrentSubscriptionsFragment extends Fragment {
                     buttonGenres.setBackground(getResources().getDrawable(R.drawable.rounded_corner_button3));
                     buttonLocations.setBackground(getResources().getDrawable(R.drawable.rounded_corner_button2));
 
-                    mDataBase.addListenerForSingleValueEvent(valueEventListener);
-                    //Query currentGenresSubsQuery = FirebaseDatabase.getInstance().getReference("server")
-                      //      .child("genres").child("subscribers").orderByChild(mUserId);
+                    //mDataBase.addListenerForSingleValueEvent(valueEventListener);
+                    Query currentGenresSubsQuery = FirebaseDatabase.getInstance().getReference("server")
+                            .child("genreuser").orderByChild(mUserId).equalTo(true);
 
-                    //currentGenresSubsQuery.addListenerForSingleValueEvent(valueEventListener);
+                    currentGenresSubsQuery.addListenerForSingleValueEvent(valueEventListener);
 
                     break;
                 case R.id.button_current_subscriptions_locations:
@@ -107,50 +135,26 @@ public class CurrentSubscriptionsFragment extends Fragment {
 
                     break;
             }
-
-
-
         }
     };
 
-
+    /**
+     * Get data to recycler view
+     */
     ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-            //duck.clear();
-
             mGenres.clear();
             if (dataSnapshot.exists()) {
-                //Toast.makeText(BaseActivityReader.this, "Hello", Toast.LENGTH_SHORT).show();
-
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-
-                    //Check if it is subscribed (it's in subscribers)
-                    if(snapshot.child("subscribers").hasChild(mUserId)) {
-                        String singleGenre = snapshot.child("name").getValue(String.class);
-                        mGenres.add(singleGenre);
-
-                    }
-
-
-                    //Toast.makeText(getContext(), snapshot.child("subscribers").getKey() , Toast.LENGTH_SHORT).show();
-
-
+                    mGenres.add(mDBGenres.get(snapshot.getKey()));
                 }
                 adapter.notifyDataSetChanged();
-
             }
         }
-
-
-
         @Override
         public void onCancelled(DatabaseError databaseError) {
 
         }
     };
-
-
-
-
 }

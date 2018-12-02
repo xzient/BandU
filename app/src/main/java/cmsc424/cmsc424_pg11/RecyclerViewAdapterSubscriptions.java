@@ -44,27 +44,21 @@ public class RecyclerViewAdapterSubscriptions extends RecyclerView.Adapter<Recyc
 
         holder.genreAdapter.setText(mGenres.get(position));
 
+
+
+
+
         //Listener
 
+        /*
         holder.parentCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "onClick: clicked on:"+ mGenres.get(position));
-
-                /*
-
-                Bundle bundle = new Bundle();
-                //Change fragment
-                AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                Fragment fragment = new EventFragment();
-
-                bundle.putString("Genre", mGenres.get(position));
-
-                fragment.setArguments(bundle);
-                activity.getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, fragment).addToBackStack(null).commit();
-                */
             }
         });
+        */
+
     }
 
     @Override

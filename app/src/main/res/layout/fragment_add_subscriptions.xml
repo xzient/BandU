@@ -4,14 +4,58 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
+        <Button
+            android:id="@+id/button_add_subscriptions_genres"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="genres"
+            android:layout_marginTop="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/rounded_corner_button2"/>
 
-    <TextView
+        <Button
+            android:id="@+id/button_add_subscriptions_locations"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="locations"
+            android:layout_marginTop="1dp"
+            android:layout_marginLeft="1dp"
+            android:background="@drawable/rounded_corner_button2"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/subscriptions_add_text_view"
+            android:textSize="17sp"
+            android:layout_margin="3dp"
+            android:textColor="@color/colorWhite2"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Add Subscriptions"
-        android:textSize="30sp"
-        android:gravity="center"/>
+        android:orientation="vertical">
+
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/recycler_view_subscribe_to_genres"/>
+
+    </LinearLayout>
 
 
 
