@@ -20,24 +20,33 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RecyclerViewAdapterSubscriptionsAdd extends RecyclerSwipeAdapter<RecyclerViewAdapterSubscriptionsAdd.ViewHolder>{
 
     private static final String TAG = "RVAdapterSubsAdd";
 
-    private ArrayList<String> mGenres;
+    private ArrayList<String> mValues;
     private Context mContext;
-    private ArrayList<String> mGenreIdList;
+    private ArrayList<String> mValueIdList;
+    private boolean mIsLocation;
     FirebaseUser mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     DatabaseReference mDataBase;
 
-    public RecyclerViewAdapterSubscriptionsAdd(Context mContext, ArrayList<String> mGenres, ArrayList<String> mGenreIdList) {
+    public RecyclerViewAdapterSubscriptionsAdd(Context mContext, ArrayList<String> mValues, ArrayList<String> mValueIdList, Boolean mIsLocation) {
 
-
-        this.mGenres = mGenres;
+        this.mValues = mValues;
         this.mContext = mContext;
-        this.mGenreIdList = mGenreIdList;
-        this.mDataBase = FirebaseDatabase.getInstance().getReference("server").child("genreuser");
+        this.mValueIdList = mValueIdList;
+
+        if(mIsLocation) {
+            this.mDataBase = FirebaseDatabase.getInstance().getReference("server").child("cityuser");
+        }
+        else {
+            this.mDataBase = FirebaseDatabase.getInstance().getReference("server").child("genreuser");
+        }
+
+
     }
 
     @NonNull
@@ -52,12 +61,55 @@ public class RecyclerViewAdapterSubscriptionsAdd extends RecyclerSwipeAdapter<Re
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         Log.d(TAG, "onBindViewHolder: called");
 
-        holder.genreAdapter.setText(mGenres.get(position).toString());
+        holder.valueAdapter.setText(mValues.get(position).toString());
 
         holder.parentCardView.setShowMode(SwipeLayout.ShowMode.PullOut);
 
         //Right swipe
         holder.parentCardView.addDrag(SwipeLayout.DragEdge.Right, holder.parentCardView.findViewById(R.id.right_swipe_add));
+
+
+
+
+
+
+        holder.parentCardView.setOnClickListener(new View.OnClickListener() {
+
+            boolean wasClosed = true;
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: clicked on:"+ mValues.get(position));
+
+
+                if (SwipeLayout.Status.Close == holder.parentCardView.getOpenStatus())
+                {
+                    if (wasClosed)
+                    {
+
+                        holder.parentCardView.open();
+                    }
+                    else
+                    {
+                        wasClosed = true;
+                        //holder.parentCardView.close();
+                    }
+                }
+                else
+                {
+                    wasClosed = false;
+                    //holder.parentCardView.close();
+                }
+
+
+
+
+
+
+
+            }
+        });
+
+
 
 
         holder.parentCardView.addSwipeListener(new SwipeLayout.SwipeListener() {
@@ -73,12 +125,12 @@ public class RecyclerViewAdapterSubscriptionsAdd extends RecyclerSwipeAdapter<Re
 
             @Override
             public void onStartClose(SwipeLayout layout) {
-
+                holder.parentCardView.close();
             }
 
             @Override
             public void onClose(SwipeLayout layout) {
-
+                holder.parentCardView.close();
             }
 
             @Override
@@ -97,20 +149,29 @@ public class RecyclerViewAdapterSubscriptionsAdd extends RecyclerSwipeAdapter<Re
             public void onClick(View view) {
 
                 //add to data
-                mDataBase.child(mGenreIdList.get(position)).child(mCurrentFirebaseUser.getUid()).setValue(true);
-
-
+                mDataBase.child(mValueIdList.get(position)).child(mCurrentFirebaseUser.getUid()).setValue(true);
 
 
                 //Remove from display
                 mItemManger.removeShownLayouts(holder.parentCardView);
-                mGenres.remove(position);
-                mGenreIdList.remove(position);
+                mValues.remove(position);
+                mValueIdList.remove(position);
                 notifyItemRemoved(position);
-                notifyItemRangeChanged(position, mGenres.size());
+                notifyItemRangeChanged(position, mValues.size());
                 mItemManger.closeAllItems();
 
-                Toast.makeText(view.getContext(), "Subscribed to genre!", Toast.LENGTH_SHORT).show();
+                /*
+                if (mIsLocation) {
+                    Toast.makeText(view.getContext(), "Subscribed to location!", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Toast.makeText(view.getContext(), "Subscribed to genre!", Toast.LENGTH_SHORT).show();
+                }
+                */
+
+                Toast.makeText(view.getContext(), "Subscribed to field!", Toast.LENGTH_SHORT).show();
+
+
             }
         });
 
@@ -119,7 +180,7 @@ public class RecyclerViewAdapterSubscriptionsAdd extends RecyclerSwipeAdapter<Re
 
     @Override
     public int getItemCount() {
-        return mGenres.size();
+        return mValues.size();
     }
 
     @Override
@@ -130,7 +191,7 @@ public class RecyclerViewAdapterSubscriptionsAdd extends RecyclerSwipeAdapter<Re
     public class ViewHolder extends RecyclerView.ViewHolder{
 
 
-        TextView genreAdapter;
+        TextView valueAdapter;
         ImageView add;
         SwipeLayout parentCardView;
 
@@ -139,9 +200,20 @@ public class RecyclerViewAdapterSubscriptionsAdd extends RecyclerSwipeAdapter<Re
 
 
             add = itemView.findViewById(R.id.add_swipe);
-            genreAdapter = itemView.findViewById(R.id.recycler_view_item_subscription_add_genre);
+            valueAdapter = itemView.findViewById(R.id.recycler_view_item_subscription_add_value);
             parentCardView = itemView.findViewById(R.id.parent_card_view_subscription_add);
 
         }
+    }
+
+    public void updateList(List<String> newListGenres, List<String> newListIDs) {
+        mValueIdList = new ArrayList<>();
+        mValues = new ArrayList<>();
+
+        mValues.addAll(newListGenres);
+        mValueIdList.addAll(newListIDs);
+        notifyDataSetChanged();
+
+
     }
 }
