@@ -38,6 +38,7 @@ public class RecyclerViewAdapterSubscriptionsAdd extends RecyclerSwipeAdapter<Re
         this.mValues = mValues;
         this.mContext = mContext;
         this.mValueIdList = mValueIdList;
+        this.mIsLocation = mIsLocation;
 
         if(mIsLocation) {
             this.mDataBase = FirebaseDatabase.getInstance().getReference("server").child("cityuser");
@@ -69,44 +70,32 @@ public class RecyclerViewAdapterSubscriptionsAdd extends RecyclerSwipeAdapter<Re
         holder.parentCardView.addDrag(SwipeLayout.DragEdge.Right, holder.parentCardView.findViewById(R.id.right_swipe_add));
 
 
-
-
-
-
         holder.parentCardView.setOnClickListener(new View.OnClickListener() {
 
-            boolean wasClosed = true;
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "onClick: clicked on:"+ mValues.get(position));
+                    boolean wasClosed = true;
+                    @Override
+                    public void onClick(View view) {
+                        Log.d(TAG, "onClick: clicked on:"+ mValues.get(position));
 
+                        if (SwipeLayout.Status.Close == holder.parentCardView.getOpenStatus())
+                        {
+                            if (wasClosed)
+                            {
 
-                if (SwipeLayout.Status.Close == holder.parentCardView.getOpenStatus())
-                {
-                    if (wasClosed)
-                    {
-
-                        holder.parentCardView.open();
+                                holder.parentCardView.open();
+                            }
+                            else
+                            {
+                                wasClosed = true;
+                                //holder.parentCardView.close();
+                            }
+                        }
+                        else
+                        {
+                            wasClosed = false;
+                            //holder.parentCardView.close();
+                        }
                     }
-                    else
-                    {
-                        wasClosed = true;
-                        //holder.parentCardView.close();
-                    }
-                }
-                else
-                {
-                    wasClosed = false;
-                    //holder.parentCardView.close();
-                }
-
-
-
-
-
-
-
-            }
         });
 
 
@@ -160,16 +149,16 @@ public class RecyclerViewAdapterSubscriptionsAdd extends RecyclerSwipeAdapter<Re
                 notifyItemRangeChanged(position, mValues.size());
                 mItemManger.closeAllItems();
 
-                /*
+
                 if (mIsLocation) {
                     Toast.makeText(view.getContext(), "Subscribed to location!", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     Toast.makeText(view.getContext(), "Subscribed to genre!", Toast.LENGTH_SHORT).show();
                 }
-                */
 
-                Toast.makeText(view.getContext(), "Subscribed to field!", Toast.LENGTH_SHORT).show();
+
+                //Toast.makeText(view.getContext(), "Subscribed to field!", Toast.LENGTH_SHORT).show();
 
 
             }

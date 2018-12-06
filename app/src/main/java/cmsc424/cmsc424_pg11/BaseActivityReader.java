@@ -1,5 +1,6 @@
 package cmsc424.cmsc424_pg11;
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -11,6 +12,8 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -61,44 +64,6 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        /*
-        //RecyclerView
-        recyclerView = findViewById(R.id.recycler_view_reader);
-        recyclerView.setHasFixedSize(true);
-
-
-        //Arrays
-        //mMessages = new ArrayList<>();
-        mTitles = new ArrayList<>();
-        mGenres = new ArrayList<>();
-        duck = new ArrayList<>();
-
-
-        adapter = new RecyclerViewAdapter(this, mTitles, mGenres);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-
-
-        //Get all rock
-        dbMessages = FirebaseDatabase.getInstance().getReference("server").child("messages");
-
-
-
-        */
-
-
-
-
-        //Query1
-
-        /*
-        Query query1 = FirebaseDatabase.getInstance().getReference("server").child("messages")
-                .orderByChild("genre").equalTo("rock");
-
-        query1.addListenerForSingleValueEvent(valueEventListener);
-
-        */
 
 
 
@@ -111,49 +76,6 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
 
 
     }
-
-    /*
-    ValueEventListener valueEventListener = new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            //duck.clear();
-            mTitles.clear();
-            //mMessages.clear();
-            mGenres.clear();
-            if (dataSnapshot.exists()) {
-                //Toast.makeText(BaseActivityReader.this, "Hello", Toast.LENGTH_SHORT).show();
-
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-
-                    snapshot.getValue();
-
-
-                    String singleTitle = snapshot.child("title").getValue(String.class);
-                    //Toast.makeText(BaseActivityReader.this, singleTitle, Toast.LENGTH_SHORT).show();
-                    //duck.add(singleTitle);
-                    mTitles.add(singleTitle);
-
-                    //String singleMessage = snapshot.child("message").getValue(String.class);
-                    //mMessages.add(singleMessage);
-
-                    String singleGenre = snapshot.child("genre").getValue(String.class);
-                    mGenres.add(singleGenre);
-
-                }
-                adapter.notifyDataSetChanged();
-
-            }
-        }
-
-
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
-    };
-
-    */
 
 
     /**
@@ -189,27 +111,6 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
                 //TO DO
                 break;
 
-                /*
-            case R.id.nav_rock:
-                Query query1 = FirebaseDatabase.getInstance().getReference("server").child("messages")
-                        .orderByChild("genre").equalTo("rock");
-
-                query1.addListenerForSingleValueEvent(valueEventListener);
-                break;
-            case R.id.nav_classical:
-                Query query2 = FirebaseDatabase.getInstance().getReference("server").child("messages")
-                        .orderByChild("genre").equalTo("classical");
-
-                query2.addListenerForSingleValueEvent(valueEventListener);
-                break;
-
-            case R.id.nav_all:
-                dbMessages = FirebaseDatabase.getInstance().getReference("server").child("messages");
-
-                dbMessages.addListenerForSingleValueEvent(valueEventListener);
-                break;
-                */
-
 
         }
 
@@ -227,4 +128,16 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
             super.onBackPressed();
         }
     }
+
+    /*
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+
+
+        inflater.inflate(R.menu.search_menu_subs, menu);
+        return super.onCreateOptionsMenu(menu);
+
+    }
+    */
 }

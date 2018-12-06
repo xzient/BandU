@@ -35,7 +35,7 @@ public class EventFragment extends Fragment {
     VideoView mVideo;
 
     private ProgressBar mProgressCircle;
-    private ImageView mPlayButton;
+    private ImageView mPlayButton, mImage;
 
 
     @Nullable
@@ -51,6 +51,7 @@ public class EventFragment extends Fragment {
         mGenre = view.findViewById(R.id.event_fragment_genre);
         mMessage = view.findViewById(R.id.event_fragment_message);
         mVideo = view.findViewById(R.id.event_fragment_video);
+        //mImage = view.findViewById(R.id.event_fragment_image);
         mPlayButton = view.findViewById(R.id.event_fragment_play);
         mProgressCircle = view.findViewById(R.id.event_fragment_progress_circular);
 
@@ -58,6 +59,7 @@ public class EventFragment extends Fragment {
         String videoPath = bundle.getString("Video");
         String imagePath = bundle.getString("Image");
         mPlayButton.setVisibility(View.GONE);
+
 
         //Set Values
         if(bundle != null) {
@@ -69,11 +71,8 @@ public class EventFragment extends Fragment {
 
             //Video
             //There is not video
-            if (videoPath.trim().equals("")) {
-                mVideo.setVisibility(View.GONE);
-                mProgressCircle.setVisibility(View.GONE);
-            }
-            else {
+            if (videoPath != null && !videoPath.trim().equals("")) {
+
                 Uri uri = Uri.parse(videoPath);
                 mVideo.setVideoURI(uri);
 
@@ -100,9 +99,23 @@ public class EventFragment extends Fragment {
                         mPlayButton.setVisibility(View.GONE);
                     }
                 });
+
+
+
+            }
+            else {
+                mVideo.setVisibility(View.GONE);
+                mProgressCircle.setVisibility(View.GONE);
             }
 
             //Image
+            if (imagePath != null && !imagePath.trim().equals("")) {
+
+            }
+            else {
+                //mImage.setVisibility(View.GONE);
+
+            }
 
 
         }

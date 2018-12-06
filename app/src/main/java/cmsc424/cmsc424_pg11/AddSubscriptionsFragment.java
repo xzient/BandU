@@ -36,8 +36,11 @@ import android.support.v7.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQueryTextListener {
 
@@ -45,11 +48,16 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
 
     private DrawerLayout drawer;
 
-
+    /*
     private ArrayList<String> mGenres = new ArrayList<>();
-    private ArrayList<String> mLocations = new ArrayList<>();
-
     private ArrayList<String> mGenreIDs = new ArrayList<>();
+
+    private ArrayList<String> mLocations = new ArrayList<>();
+    private ArrayList<String> mLocationIDs = new ArrayList<>();
+
+    */
+    private ArrayList<String> mValues = new ArrayList<>();
+    private ArrayList<String> mValueIDs = new ArrayList<>();
 
 
 
@@ -58,12 +66,18 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
     private RecyclerViewAdapterSubscriptionsAdd adapter;
     private DatabaseReference mDataBase;
     private DatabaseReference mDataBase2;
+
+    private DatabaseReference mDatabaseLoc;
+    private DatabaseReference getmDatabaseLoc2;
     private FirebaseUser mCurrentFirebaseUser;
     private String mUserId;
 
     private Map <String, String> mDBGenres;
+    private Map <String, String> mDBLocations;
 
     Button buttonGenres, buttonLocations;
+
+    private boolean mIsLocation = false; // 0 for Genre  - 1 for Location
 
 
     @Nullable
@@ -71,19 +85,13 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_subscriptions, container, false);
 
-
-
         Log.d(TAG, "onCreateView: View created.");
 
         //Set menu options for this fragment
         setHasOptionsMenu(true);
 
-
-
         Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-
-
 
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
         mUserId = mCurrentFirebaseUser.getUid();
@@ -94,12 +102,24 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
         mRecyclerView = view.findViewById(R.id.recycler_view_add_genres);
         mRecyclerView.setHasFixedSize(true);
 
-
+        //Genre data
         mDataBase = FirebaseDatabase.getInstance().getReference("server").child("genres");
         mDataBase.keepSynced(true);
 
         mDataBase2 = FirebaseDatabase.getInstance().getReference("server").child("genreuser");
         mDataBase2.keepSynced(true);
+
+
+        //Location data
+        mDatabaseLoc = FirebaseDatabase.getInstance().getReference("server").child("city");
+        mDatabaseLoc.keepSynced(true);
+
+        getmDatabaseLoc2 = FirebaseDatabase.getInstance().getReference("server").child("cityuser");
+        getmDatabaseLoc2.keepSynced(true);
+
+        mDBLocations = new HashMap<String, String>();
+
+
 
         //mDataBase.addListenerForSingleValueEvent(valueEventListener);
 
@@ -113,16 +133,37 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mDBGenres = (Map<String, String>) dataSnapshot.getValue();
-
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
-        adapter = new RecyclerViewAdapterSubscriptionsAdd(getContext(), mGenres, mGenreIDs);
+        //Get locations
+        mDatabaseLoc.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+
+
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        //Add name and state
+                        mDBLocations.put(snapshot.getKey(), snapshot.child("name").getValue(String.class) + ", " + snapshot.child("state").getValue(String.class));
+
+                    }
+
+                }
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        adapter = new RecyclerViewAdapterSubscriptionsAdd(getContext(), mValues, mValueIDs, mIsLocation);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -145,6 +186,8 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
         });
 
 
+
+        //Hamburger Toggle
         drawer = getActivity().findViewById(R.id.drawer_reader_main);
 
 
@@ -152,9 +195,6 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
-
-
 
         return view;
     }
@@ -173,30 +213,36 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
                     buttonGenres.setBackground(getResources().getDrawable(R.drawable.rounded_corner_button3));
                     buttonLocations.setBackground(getResources().getDrawable(R.drawable.rounded_corner_button2));
 
-                    mGenreIDs = new ArrayList<>(mDBGenres.keySet());
-                    mGenres = new ArrayList<>(mDBGenres.values());
+                    mValueIDs = new ArrayList<>(mDBGenres.keySet());
+                    mValues = new ArrayList<>(mDBGenres.values());
 
                     adapter.notifyDataSetChanged();
 
-
-
-
-
-
-
+                    mIsLocation = false;
 
                     Query currentGenresSubsQuery = FirebaseDatabase.getInstance().getReference("server")
                            .child("genreuser").orderByChild(mUserId).equalTo(true);
 
-
-
                     currentGenresSubsQuery.addListenerForSingleValueEvent(valueEventListener);
-
                     break;
+
+                //Case for Subscriptions Location
                 case R.id.button_add_subscriptions_locations:
-                    Toast.makeText(getContext(), "No yet implemented", Toast.LENGTH_SHORT).show();
                     buttonLocations.setBackground(getResources().getDrawable(R.drawable.rounded_corner_button3));
                     buttonGenres.setBackground(getResources().getDrawable(R.drawable.rounded_corner_button2));
+
+                    mValueIDs = new ArrayList<>(mDBLocations.keySet());
+                    //Toast.makeText(getContext(), mValueIDs.get(0), Toast.LENGTH_SHORT).show();
+                    mValues = new ArrayList<>(mDBLocations.values());
+
+                    adapter.notifyDataSetChanged();
+
+                    mIsLocation = true;
+
+                    Query currentGenresSubsQuery2 = FirebaseDatabase.getInstance().getReference("server")
+                            .child("cityuser").orderByChild(mUserId).equalTo(true);
+
+                    currentGenresSubsQuery2.addListenerForSingleValueEvent(valueEventListener);
 
                     break;
             }
@@ -207,10 +253,15 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
     };
 
 
+
+
+
+    /**
+     * ValueEventListener for Values (Genres or Locations)
+     */
     ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-            //duck.clear();
 
             //mGenres.clear();
             //mGenreIDs.clear();
@@ -220,11 +271,18 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
 
                     //Toast.makeText(getContext(), mGenres.get(0), Toast.LENGTH_SHORT).show();
-                    mGenres.remove(mDBGenres.get(snapshot.getKey()));
-                    mGenreIDs.remove(snapshot.getKey());
+                    if (mIsLocation) {
+                        mValues.remove(mDBLocations.get(snapshot.getKey()));
+                    }
+                    else {
+                        mValues.remove(mDBGenres.get(snapshot.getKey()));
+                    }
+
+
+                    mValueIDs.remove(snapshot.getKey());
 
                 }
-                adapter = new RecyclerViewAdapterSubscriptionsAdd(getContext(), mGenres, mGenreIDs);
+                adapter = new RecyclerViewAdapterSubscriptionsAdd(getContext(), mValues, mValueIDs, mIsLocation);
                 mRecyclerView.setAdapter(adapter);
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                 //adapter.notifyDataSetChanged();
@@ -236,9 +294,12 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
 
         @Override
         public void onCancelled(DatabaseError databaseError) {
-
+            Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
         }
     };
+
+
+
 
 
     //Fragment menu
@@ -265,18 +326,18 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
     public boolean onQueryTextChange(String s) {
 
         String userInput = s.toLowerCase();
-        List<String> newListGenres = new ArrayList<>();
+        List<String> newListValues = new ArrayList<>();
         List<String> newListIDs = new ArrayList<>();
 
-        for (String genre: mGenres) {
-            if(genre.toLowerCase().contains(userInput)) {
+        for (String value: mValues) {
+            if(value.toLowerCase().contains(userInput)) {
                 //get genre
-                newListGenres.add(genre);
-                //get arraylist
-                newListIDs.add(mGenreIDs.get(mGenres.indexOf(genre)));
+                newListValues.add(value);
+                //get arrayList
+                newListIDs.add(mValueIDs.get(mValues.indexOf(value)));
             }
 
-        adapter.updateList(newListGenres, newListIDs);
+        adapter.updateList(newListValues, newListIDs);
         }
         return false;
     }

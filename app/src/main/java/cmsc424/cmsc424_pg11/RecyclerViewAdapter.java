@@ -25,13 +25,20 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private ArrayList<String> mTitles = new ArrayList<>();
     private ArrayList<String> mMessages = new ArrayList<>();
     private ArrayList<String> mGenres = new ArrayList<>();
+    private ArrayList<String> mVideos = new ArrayList<>();
+    private ArrayList<String> mImages = new ArrayList<>();
+    private ArrayList<String> mAudios = new ArrayList<>();
     private Context mContext;
 
-    public RecyclerViewAdapter(Context mContext, ArrayList<String> mTitles, ArrayList<String> mMessages, ArrayList<String> mGenres) {
+    public RecyclerViewAdapter(Context mContext, ArrayList<String> mTitles, ArrayList<String> mMessages, ArrayList<String> mGenres, ArrayList<String> mVideos,
+                               ArrayList<String> mImages, ArrayList<String> mAudios) {
         this.mTitles = mTitles;
         this.mMessages = mMessages;
         this.mGenres = mGenres;
         this.mContext = mContext;
+        this.mVideos = mVideos;
+        this.mImages = mImages;
+        this.mAudios = mAudios;
     }
 
     @NonNull
@@ -64,6 +71,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 bundle.putString("Title", mTitles.get(position));
                 bundle.putString("Genre", mGenres.get(position));
                 bundle.putString("Message", mMessages.get(position));
+                bundle.putString("Video", mVideos.get(position));
+                bundle.putString("Image", mImages.get(position));
+                bundle.putString("Audio", mAudios.get(position));
                 fragment.setArguments(bundle);
                 activity.getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, fragment).addToBackStack(null).commit();
 
