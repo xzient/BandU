@@ -1,5 +1,7 @@
 package cmsc424.cmsc424_pg11;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -36,6 +38,11 @@ public class SignIn extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+
+
+
+
+
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -122,7 +129,11 @@ public class SignIn extends AppCompatActivity {
      */
     public void updateUI(FirebaseUser user) {
         if(user != null) {
-            startActivity(new Intent(SignIn.this, BaseActivityReader.class));
+
+            Intent intent = new Intent(SignIn.this, BaseActivityReader.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         }
         else {
             Toast.makeText(this, "Incorrect Email or Password!", Toast.LENGTH_SHORT).show();
@@ -140,4 +151,16 @@ public class SignIn extends AppCompatActivity {
     */
 
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        //getIntent().setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        //ActivityManager am = (ActivityManager) getSystemService(Activity.ACTIVITY_SERVICE);
+        //am.killBackgroundProcesses(getIntent().EXTRA_PACKAGE_NAME);
+
+        //Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //finish();
+        //System.exit(0);
+    }
 }

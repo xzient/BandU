@@ -17,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -46,11 +47,21 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(FirebaseAuth.getInstance().getCurrentUser() == null) {
+            finish();
+            System.exit(0);
+        }
         setContentView(R.layout.activity_base_reader);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //setTitle("BandU");
+
+
+
+
+
 
 
 
@@ -88,7 +99,7 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
 
         switch (item.getItemId()) {
             case R.id.nav_reader_home:
-                setTitle("BandU");
+                setTitle("Feed");
                 getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new HomeReaderFragment()).addToBackStack(TAG).commit();
                 break;
             case R.id.nav_reader_map:
@@ -97,7 +108,7 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
                 break;
             case R.id.nav_reader_search:
                 setTitle("Search");
-                //TO DO
+                getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new SearchFragment()).addToBackStack(TAG).commit();
                 break;
             case R.id.nav_reader_subscriptions:
                 setTitle("Subscriptions");
@@ -110,6 +121,13 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
                 setTitle("Settings");
                 //TO DO
                 break;
+            case R.id.nav_sing_out:
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(BaseActivityReader.this, SignIn.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+
 
 
         }

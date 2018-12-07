@@ -19,6 +19,8 @@
     <string name="nav_user_parameters">User Parameters</string>
     <string name="nav_settings">Settings</string>
 
+    <string name="nav_sing_out">Sign out</string>
+
 
     <!--Subscriptions-->
     <string name="subscriptions_current">Current Subscriptions</string>
