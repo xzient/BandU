@@ -21,10 +21,6 @@
             android:title="@string/nav_subscriptions"
             android:icon="@drawable/ic_rss_feed_white"/>
         <item
-            android:id="@+id/nav_reader_user_parameters"
-            android:title="@string/nav_user_parameters"
-            android:icon="@drawable/ic_user_parameters_white"/>
-        <item
             android:id="@+id/nav_reader_settings"
             android:title="@string/nav_settings"
             android:icon="@drawable/ic_settings_white"/>

@@ -114,12 +114,10 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
                 setTitle("Subscriptions");
                 getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new SubscriptionsFragment()).addToBackStack(TAG).commit();
                 break;
-            case R.id.nav_reader_user_parameters:
-                setTitle("User Parameters");
-                break;
             case R.id.nav_reader_settings:
                 setTitle("Settings");
                 //TO DO
+                getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new SettingsFragment()).addToBackStack(TAG).commit();
                 break;
             case R.id.nav_sing_out:
                 FirebaseAuth.getInstance().signOut();
