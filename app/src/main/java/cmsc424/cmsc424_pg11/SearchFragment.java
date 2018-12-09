@@ -58,6 +58,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class SearchFragment extends Fragment implements SearchView.OnQueryTextListener {
 
@@ -72,6 +74,7 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
 
     //Load data
     private DatabaseReference mDataBase;
+    private DatabaseReference mDataBaseArchived;
     private DatabaseReference mDataBaseGenres;
     private DatabaseReference mDataBaseLocations;
     private DatabaseReference mDataBaseVenues;
@@ -99,7 +102,21 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
     String genreSelected;
     String locationSelected;
 
+    String genreSelectedId;
+    String locationSelectedId;
 
+    //Adapter and other stuff
+    private RecyclerViewAdapterSearch adapter;
+    private RecyclerView mRecyclerView;
+
+
+
+    private ArrayList<String> mMessages = new ArrayList<>();
+    private ArrayList<String> mTitles = new ArrayList<>();
+    private ArrayList<String> mGenres = new ArrayList<>();
+    private ArrayList<String> mVideos = new ArrayList<>();
+    private ArrayList<String> mImages = new ArrayList<>();
+    private ArrayList<String> mAudios = new ArrayList<>();
 
     //Spinner Data
 
@@ -144,12 +161,17 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 
+        mRecyclerView = view.findViewById(R.id.recycler_view_search);
+        mRecyclerView.setHasFixedSize(true);
+
 
 
         //Data
         mUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         mDataBase = FirebaseDatabase.getInstance().getReference("server").child("messages");
+
+        mDataBaseArchived = FirebaseDatabase.getInstance().getReference("server").child("archivedmessages");
 
         mDataBaseGenres = FirebaseDatabase.getInstance().getReference("server").child("genres");
 
@@ -203,8 +225,20 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
             }
         });
 
+        btnFind.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                displayQuery();
+            }
+        });
+
         //List for genre and location
 
+
+        //Recycler viewer
+        adapter = new RecyclerViewAdapterSearch(getContext(), mTitles, mMessages, mGenres, mVideos, mImages, mAudios);
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
 
 
@@ -245,6 +279,14 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 genreSelected = adapterView.getItemAtPosition(i).toString();
                 genreTextView.setText(genreSelected);
+
+
+                for (Map.Entry<String, String> entry : mDBGenres.entrySet()) {
+                    if (Objects.equals(genreSelected, entry.getValue())) {
+                        genreSelectedId = entry.getKey();
+
+                    }
+                }
                 dialogGenre.dismiss();
             }
         });
@@ -270,8 +312,21 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                genreSelected = adapterView.getItemAtPosition(i).toString();
-                locationTextView.setText(genreSelected);
+                locationSelected = adapterView.getItemAtPosition(i).toString();
+                locationTextView.setText(locationSelected);
+
+
+                for (Map.Entry<String, String> entry : mDBLocationNames.entrySet()) {
+                    if (Objects.equals(locationSelected, entry.getValue())) {
+                        locationSelectedId = entry.getKey();
+
+                    }
+
+
+                }
+
+
+
                 dialogLocation.dismiss();
             }
         });
@@ -353,10 +408,138 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
 
     }
 
+    /*======================================================================================*/
+
+    private void displayQuery() {
+
+
+        mTitles.clear();
+        mMessages.clear();
+        mGenres.clear();
+        mVideos.clear();
+        mImages.clear();
+        mAudios.clear();
+
+
+        if (timeSelected == null || genreSelected == null || locationSelected == null) {
+            Toast.makeText(getContext(), "Please complete all fields!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
 
 
 
+
+
+
+        adapter = new RecyclerViewAdapterSearch(getContext(), mTitles, mMessages, mGenres, mVideos, mImages, mAudios);
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+
+
+        mDataBase.addListenerForSingleValueEvent(valueEventListener);
+        mDataBaseArchived.addListenerForSingleValueEvent(valueEventListener);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                 if (mTitles.size() == 0) {
+                     Toast.makeText(getContext(), "No results. Please try a different query!", Toast.LENGTH_SHORT).show();
+                 }
+            }
+        }, 1000);
+
+
+
+
+
+    }
+
+    /*======================================================================================*/
+    ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            if (dataSnapshot.exists()) {
+
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+
+                    //Get all, all null
+                    /*
+                    if(genreSelected == null && locationSelected == null && dateNow == null) {
+                        mTitles.add(snapshot.child("title").getValue(String.class));
+                        mMessages.add(snapshot.child("message").getValue(String.class));
+                        mGenres.add(mDBGenres.get(snapshot.child("genre").getValue(String.class)));
+                        mVideos.add(snapshot.child("video").getValue(String.class));
+                        mImages.add(snapshot.child("image").getValue(String.class));
+                        mAudios.add(snapshot.child("sound").getValue(String.class));
+                    }
+                    */
+
+
+
+
+
+                    //Check genre
+                    String eventGenre = snapshot.child("genre").getValue(String.class);
+
+                    if (genreSelected.equals(eventGenre) ||
+                            Methods.checkStringValue(genreSelectedId, eventGenre) == 1) {
+
+
+                        String startTime =  snapshot.child("start_time").getValue(Long.class).toString();
+                        String endTime = snapshot.child("end_time").getValue(Long.class).toString();
+
+                        //Check Time
+                        if (Methods.betweenTwoDates(startTime, endTime, dateNow)) {
+
+                            //Check Location
+                            String eventLocID = snapshot.child("venue_id").getValue(Long.class).toString();
+                            float[] results = new float[1];
+
+                            double [] eventCoordinates = {mDBVenues.get(eventLocID)[0], mDBVenues.get(eventLocID)[1]};
+
+
+
+
+                            int distanceInMiles;
+                            Integer eventRange = snapshot.child("range").getValue(Integer.class);
+
+                            double[] coor = mDBLocations.get(locationSelectedId);
+
+                            Location.distanceBetween( eventCoordinates[0], eventCoordinates[1], coor[0],
+                                    coor[1], results);
+                            distanceInMiles = (int) Math.floor(results[0] * 0.00062137);
+
+
+
+                            if (eventRange != null && distanceInMiles <= eventRange) {
+
+                                mTitles.add(snapshot.child("title").getValue(String.class));
+                                mMessages.add(snapshot.child("message").getValue(String.class));
+                                mGenres.add(mDBGenres.get(snapshot.child("genre").getValue(String.class)));
+                                mVideos.add(snapshot.child("video").getValue(String.class));
+                                mImages.add(snapshot.child("image").getValue(String.class));
+                                mAudios.add(snapshot.child("sound").getValue(String.class));
+ 
+
+                            }
+
+
+                        }
+                    }
+                }
+            }
+            adapter = new RecyclerViewAdapterSearch(getContext(), mTitles, mMessages, mGenres, mVideos, mImages, mAudios);
+            mRecyclerView.setAdapter(adapter);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        }
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+        }
+    };
 
     /**
      * Menu for fragment
@@ -375,6 +558,10 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         //super.onCreateOptionsMenu(menu, menuInflater);
     }
 
+
+    //On query stuff
+
+
     @Override
     public boolean onQueryTextSubmit(String query) {
         return false;
@@ -382,6 +569,32 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
 
     @Override
     public boolean onQueryTextChange(String newText) {
+
+        String userInput = newText.toLowerCase();
+        List<String> newTitles = new ArrayList<>();
+        List<String> newMessages = new ArrayList<>();
+        List<String> newGenres = new ArrayList<>();
+        List<String> newVideos = new ArrayList<>();
+        List<String> newImages = new ArrayList<>();
+        List<String> newAudios = new ArrayList<>();
+
+        //for (String value: mMessages) {
+
+        for (int i = 0; i < mTitles.size(); i++) {
+            if(mMessages.get(i).toLowerCase().contains(userInput)
+                    || mTitles.get(i).toLowerCase().contains(userInput)) {
+                //get genre
+                newTitles.add(mTitles.get(i));
+                newMessages.add(mMessages.get(i));
+                newGenres.add(mGenres.get(i));
+                newVideos.add(mVideos.get(i));
+                newImages.add(mImages.get(i));
+                newAudios.add(mAudios.get(i));
+            }
+            adapter.updateList(newTitles, newMessages, newGenres, newVideos, newImages,newAudios);
+        }
+
+
         return false;
     }
 
@@ -450,7 +663,7 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     mDBVenues.put(snapshot.getKey(), new double[]{snapshot.child("lat").getValue(Double.class),snapshot.child("long").getValue(Double.class)});
 
-                    //Toast.makeText(getContext(), mDBVenues.get(snapshot.getKey())[0] + "", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getContext(), snapshot.getKey() + "", Toast.LENGTH_SHORT).show();
                 }
             }
 
