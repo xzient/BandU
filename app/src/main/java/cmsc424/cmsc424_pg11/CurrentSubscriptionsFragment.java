@@ -121,11 +121,7 @@ public class CurrentSubscriptionsFragment extends Fragment implements SearchView
         mDataBaseLoc.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-
                 if (dataSnapshot.exists()) {
-
-
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         //Add name and state
                         mDBLocations.put(snapshot.getKey(), snapshot.child("name").getValue(String.class) + ", " + snapshot.child("state").getValue(String.class));
@@ -221,6 +217,15 @@ public class CurrentSubscriptionsFragment extends Fragment implements SearchView
         public void onDataChange(DataSnapshot dataSnapshot) {
             mValues.clear();
             mValueIDs.clear();
+
+            if (dataSnapshot.getChildrenCount() == 0) {
+                String valueType = mIsLocation? "locations" : "genres";
+
+                Toast.makeText(getContext(), "You are not subscribed to any " + valueType, Toast.LENGTH_SHORT).show();
+
+
+            }
+
             if (dataSnapshot.exists()) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
 

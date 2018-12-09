@@ -14,10 +14,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class SignIn extends AppCompatActivity {
     Button logIn;
@@ -92,11 +97,21 @@ public class SignIn extends AppCompatActivity {
 
 
 
+
+
             mAuth.signInWithEmailAndPassword(testEmail, testPassword)
                     .addOnCompleteListener(SignIn.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             //Verify if email was verified.
+
+                            if(mAuth.getCurrentUser() == null) {
+                                //Toast.makeText(SignIn.this, "Wrong email or password", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+
+
                             if(! mAuth.getCurrentUser().isEmailVerified()) {
                                 Log.w(TAG, "emailNotVerified", task.getException());
                                 Toast.makeText(SignIn.this, "Please verify your email!", Toast.LENGTH_SHORT).show();
@@ -118,7 +133,13 @@ public class SignIn extends AppCompatActivity {
 
                             // ...
                         }
-                    });
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "onFailure: User does not exist", e);
+                        Toast.makeText(SignIn.this, "Wrong email or password!", Toast.LENGTH_SHORT).show();
+                    }
+            });
 
         }
     };

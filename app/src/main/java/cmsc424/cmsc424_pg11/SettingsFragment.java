@@ -2,6 +2,7 @@ package cmsc424.cmsc424_pg11;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -52,6 +53,8 @@ public class SettingsFragment extends Fragment{
 
 
     public void openDialog() {
+        DialogFragment alertDialogDeregister = new AlertDialogDeregister();
+        alertDialogDeregister.show(getActivity().getSupportFragmentManager(), "AlertDialogDeregister");
 
     }
 

@@ -4,6 +4,7 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -12,11 +13,15 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,7 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class BaseActivityReader extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class BaseActivityReader extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AlertDialogDeregister.AlertDialogListener  {
 
     private DrawerLayout drawer;
     DatabaseReference dbMessages;
@@ -35,12 +40,19 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
 
 
     //RecyclerView
+    /*
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
-    //private ArrayList<String> mMessages;
+    private ArrayList<String> mMessages;
     private ArrayList<String> mTitles;
     private ArrayList<String> mGenres;
-    private ArrayList<String> duck;
+    */
+
+    private DatabaseReference mDataBase;
+    private DatabaseReference mDataBase2;
+    private DatabaseReference mDataBase3;
+    private DatabaseReference mDataBase4;
+    private String mUserId;
 
 
 
@@ -57,6 +69,8 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //setTitle("BandU");
+
+        mUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
 
 
@@ -120,11 +134,7 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
                 getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new SettingsFragment()).addToBackStack(TAG).commit();
                 break;
             case R.id.nav_sing_out:
-                FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(BaseActivityReader.this, SignIn.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                endSession();
 
 
 
@@ -145,6 +155,115 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
         }
     }
 
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        mDataBase = FirebaseDatabase.getInstance().getReference("server").child("users").child(mUserId);
+        mDataBase2 = FirebaseDatabase.getInstance().getReference("server").child("archivedusers").child(mUserId);
+        mDataBase3 = FirebaseDatabase.getInstance().getReference("server").child("archivedgenreuser");
+        mDataBase4 = FirebaseDatabase.getInstance().getReference("server").child("archivedcityuser");
+
+
+
+        //Transfer user data
+        mDataBase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+
+                    mDataBase2.child(snapshot.getKey()).setValue(snapshot.getValue());
+                    //Toast.makeText(BaseActivityReader.this, snapshot.getKey(), Toast.LENGTH_SHORT).show();
+                }
+
+                mDataBase.removeValue();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(BaseActivityReader.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //Transfer user gender subscriptions.
+        Query currentGenresSubsQuery = FirebaseDatabase.getInstance().getReference("server")
+                .child("genreuser").orderByChild(mUserId).equalTo(true);
+        currentGenresSubsQuery.addListenerForSingleValueEvent(valueEventListener);
+
+
+        currentGenresSubsQuery = FirebaseDatabase.getInstance().getReference("server")
+                .child("cityuser").orderByChild(mUserId).equalTo(true);
+        currentGenresSubsQuery.addListenerForSingleValueEvent(valueEventListener2);
+
+
+
+        //Delete user
+        FirebaseAuth.getInstance().getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.d(TAG,"User deleted.");
+                    endSession();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "onFailure: couldn't delete user.", e);
+                
+            }
+        });
+
+        endSession();
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        //Toast.makeText(this, "No from activity", Toast.LENGTH_SHORT).show();
+    }
+
+
+    ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            if (dataSnapshot.exists()) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    mDataBase3.child(snapshot.getKey()).child(mUserId).setValue(true);
+
+                    snapshot.child(mUserId).getRef().removeValue();
+                }
+            }
+        }
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Toast.makeText(BaseActivityReader.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    ValueEventListener valueEventListener2 = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            if (dataSnapshot.exists()) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    mDataBase4.child(snapshot.getKey()).child(mUserId).setValue(true);
+
+                    snapshot.child(mUserId).getRef().removeValue();
+                }
+            }
+        }
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Toast.makeText(BaseActivityReader.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    };
+
+
+
+    public void endSession () {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(BaseActivityReader.this, SignIn.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
     /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -156,4 +275,6 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
 
     }
     */
+
+
 }

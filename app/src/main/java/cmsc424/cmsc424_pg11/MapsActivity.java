@@ -83,7 +83,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Toolbar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setTitle("BandU");
+        setTitle("Map");
 
         //Authentication
         mAuth = FirebaseAuth.getInstance();
@@ -367,6 +367,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mRef.child(mUserID).child("state").setValue(obj.getAdminArea());
             mRef.child(mUserID).child("latitude").setValue(lat);
             mRef.child(mUserID).child("longitude").setValue(lng);
+
+
 
 
             return null;

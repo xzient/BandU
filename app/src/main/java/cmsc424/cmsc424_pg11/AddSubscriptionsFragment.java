@@ -124,8 +124,7 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
         //mDataBase.addListenerForSingleValueEvent(valueEventListener);
 
 
-        buttonLocations.setOnClickListener(onClickListener);
-        buttonGenres.setOnClickListener(onClickListener);
+
 
 
         //Get genres
@@ -196,6 +195,9 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        buttonLocations.setOnClickListener(onClickListener);
+        buttonGenres.setOnClickListener(onClickListener);
+
         return view;
     }
 
@@ -265,6 +267,15 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
 
             //mGenres.clear();
             //mGenreIDs.clear();
+
+            if (dataSnapshot.getChildrenCount() == 0) {
+                //Toast.makeText(getContext(), "Empty", Toast.LENGTH_SHORT).show();
+
+                adapter = new RecyclerViewAdapterSubscriptionsAdd(getContext(), mValues, mValueIDs, mIsLocation);
+                mRecyclerView.setAdapter(adapter);
+                mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            }
+
             if (dataSnapshot.exists()) {
 
 
