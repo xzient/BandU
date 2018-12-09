@@ -28,9 +28,10 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_exit_to_app" />
-                            <entry key="sourceFile" value="C:\Users\xavy_" />
+                            <entry key="outputName" value="ic_concert" />
+                            <entry key="sourceFile" value="C:\Users\xavy_\Pictures\icons\concert.svg" />
                           </map>
                         </option>
                       </PersistentState>

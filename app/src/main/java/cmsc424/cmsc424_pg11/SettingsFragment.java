@@ -1,5 +1,6 @@
 package cmsc424.cmsc424_pg11;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -12,13 +13,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class SettingsFragment extends Fragment{
 
     private static final String TAG = "SettingsFragment";
 
     //Variables
 
-    private Button mBecomeAPublisher, mDeRegister;
+    private Button mBecomeAPublisher, mDeRegister, mSignOut;
 
 
     @Nullable
@@ -30,6 +33,7 @@ public class SettingsFragment extends Fragment{
 
         mBecomeAPublisher = view.findViewById(R.id.become_a_publisher);
         mDeRegister = view.findViewById(R.id.deregister_user);
+        mSignOut = view.findViewById(R.id.btn_sign_out);
 
         mBecomeAPublisher.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,6 +52,13 @@ public class SettingsFragment extends Fragment{
             }
         });
 
+        mSignOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                endSession();
+            }
+        });
+
         return view;
     }//End view
 
@@ -56,6 +67,14 @@ public class SettingsFragment extends Fragment{
         DialogFragment alertDialogDeregister = new AlertDialogDeregister();
         alertDialogDeregister.show(getActivity().getSupportFragmentManager(), "AlertDialogDeregister");
 
+    }
+
+    public void endSession () {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(getActivity(), SignIn.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
 

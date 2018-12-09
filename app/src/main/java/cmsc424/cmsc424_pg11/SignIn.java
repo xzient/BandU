@@ -34,6 +34,8 @@ public class SignIn extends AppCompatActivity {
     String testPassword;
     Toolbar toolbar;
 
+    Boolean verifyEmail = false;
+
     public static final String TAG = "SignIn";
 
     //Authentication
@@ -115,6 +117,7 @@ public class SignIn extends AppCompatActivity {
                             if(! mAuth.getCurrentUser().isEmailVerified()) {
                                 Log.w(TAG, "emailNotVerified", task.getException());
                                 Toast.makeText(SignIn.this, "Please verify your email!", Toast.LENGTH_SHORT).show();
+                                verifyEmail = true;
                                 return;
                             }
 
@@ -136,9 +139,14 @@ public class SignIn extends AppCompatActivity {
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "onFailure: User does not exist", e);
-                        Toast.makeText(SignIn.this, "Wrong email or password!", Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "onFailure: User does not exist", e);
+                            if (!verifyEmail) {
+                                Toast.makeText(SignIn.this, "Wrong email or password!", Toast.LENGTH_SHORT).show();
+                            }
                     }
+
+
+
             });
 
         }

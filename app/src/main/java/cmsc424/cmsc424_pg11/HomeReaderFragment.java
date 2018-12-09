@@ -73,7 +73,7 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
 
     //Calendar currentTime;
 
-
+    boolean firstTimePermission = true;
 
     private Map <String, String> mDBGenres;
     private Map <String,  double[]> mDBLocations;
@@ -108,9 +108,6 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
         Log.d(TAG, "onCreateView: Started.");
 
 
-
-
-
         //Toast.makeText(getContext(), dateNow.toString(), Toast.LENGTH_SHORT).show();
 
         mUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -121,9 +118,6 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
         mDBLocations = new HashMap<>();
 
 
-
-
-
         //Get current
 
         //Get current time;
@@ -131,7 +125,7 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
 
 
         //Get location
-        getLocationPermission();
+
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
         mRef = FirebaseDatabase.getInstance().getReference("server").child("users").child(mUserId);
@@ -150,7 +144,7 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
         //getCoordinates();
 
 
-        mDataBase = FirebaseDatabase.getInstance().getReference("server").child("messages");//May get issues
+        mDataBase = FirebaseDatabase.getInstance().getReference("server").child("messages");
         mDataBase.keepSynced(true);
 
         mDataBaseGenres = FirebaseDatabase.getInstance().getReference("server").child("genres");
@@ -178,7 +172,10 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
             @Override
             public void run() {
                 mSwipeRefreshLayout.setRefreshing(true);
-                loadRecyclerViewData();
+                //Toast.makeText(getContext(), "Firstime", Toast.LENGTH_SHORT).show();
+                getLocationPermission();
+
+                //loadRecyclerViewData();
             }
         });
 
@@ -194,6 +191,11 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
      */
     @Override
     public void onRefresh() {
+        if (firstTimePermission) {
+            getLocationPermission();
+            firstTimePermission = false;
+        }
+
         loadRecyclerViewData();
         //Toast.makeText(getContext(), "Data on refresh", Toast.LENGTH_SHORT).show();
         //mDataBase.addListenerForSingleValueEvent(valueEventListener);
@@ -308,10 +310,15 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
 
 
                                 //Toast.makeText(getContext(), "Event range: " + distanceInMiles, Toast.LENGTH_SHORT).show();
-                                //Log.d(TAG, "onDataChange: " + snapshot.getKey());
+                                Log.d(TAG, "onDataChange: " + snapshot.getKey());
 
                                 //Date condition
-                                if (Methods.betweenTwoDates(snapshot.child("start_time").getValue(Long.class).toString(), snapshot.child("end_time").getValue(Long.class).toString(), dateNow)) {
+                                String startTime =  snapshot.child("start_time").getValue(Long.class).toString();
+                                String endTime = snapshot.child("end_time").getValue(Long.class).toString();
+
+                                if (startTime != null && endTime != null &&
+                                        Methods.betweenTwoDates(startTime, endTime, dateNow)) {
+
                                     mTitles.add(snapshot.child("title").getValue(String.class));
                                     mMessages.add(snapshot.child("message").getValue(String.class));
                                     mGenres.add(mDBGenres.get(snapshot.child("genre").getValue(String.class)));
@@ -319,8 +326,6 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
                                     mImages.add(snapshot.child("image").getValue(String.class));
                                     mAudios.add(snapshot.child("sound").getValue(String.class));
                                 }
-
-
 
                                 break; //Break from loop
                             }
@@ -377,10 +382,18 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
+            //Toast.makeText(getContext(), "way 1!", Toast.LENGTH_SHORT).show();
+            loadRecyclerViewData();
         } else {
+
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+
+            //Toast.makeText(getContext(), "Refresh your screen!", Toast.LENGTH_SHORT).show();
+            mSwipeRefreshLayout.setRefreshing(false);
+
+            //loadRecyclerViewData();
         }
     }
 

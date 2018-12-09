@@ -310,10 +310,11 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
     };
 
 
-
-
-
-    //Fragment menu
+    /**
+     * Menu for fragment
+     * @param menu
+     * @param menuInflater
+     */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
 
@@ -324,7 +325,6 @@ public class AddSubscriptionsFragment extends Fragment implements SearchView.OnQ
         searchView.setOnQueryTextListener(this);
 
         //super.onCreateOptionsMenu(menu, menuInflater);
-
     }
 
 
