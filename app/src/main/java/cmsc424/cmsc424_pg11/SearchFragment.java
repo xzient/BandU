@@ -117,6 +117,7 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
     private ArrayList<String> mVideos = new ArrayList<>();
     private ArrayList<String> mImages = new ArrayList<>();
     private ArrayList<String> mAudios = new ArrayList<>();
+    private ArrayList<String> mEventIds = new ArrayList<>();
 
     //Spinner Data
 
@@ -154,6 +155,11 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         Log.d(TAG, "onCreateView: Started.");
 
         timeSelected = "";
+
+        //Selected
+        genreSelected = "all genres";
+        locationSelected = "all locations";
+        timeSelected = "all times";
 
         //Toolbar
         setHasOptionsMenu(true);
@@ -236,7 +242,8 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
 
 
         //Recycler viewer
-        adapter = new RecyclerViewAdapterSearch(getContext(), mTitles, mMessages, mGenres, mVideos, mImages, mAudios);
+        adapter = new RecyclerViewAdapterSearch(getContext(), mTitles, mMessages, mGenres, mVideos,
+                mImages, mAudios, mEventIds);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -300,7 +307,9 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         //mDBLocationNames
 
         ArrayList<String> sortedList = new ArrayList<String>(mDBLocationNames.values());
+
         Collections.sort(sortedList);
+        sortedList.add("all locations");
 
         ListView listView = dialogLocation.findViewById(R.id.location_popup_list_view);
 
@@ -340,6 +349,7 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         dialogTime.show();
 
         final Button timeBtn = dialogTime.findViewById(R.id.time_popup_button);
+        final Button allTimes = dialogTime.findViewById(R.id.all_times_popup_button);
         final Spinner yearET = dialogTime.findViewById(R.id.time_popup_year);
         final Spinner monthET = dialogTime.findViewById(R.id.time_popup_month);
         final Spinner dayET = dialogTime.findViewById(R.id.time_popup_day);
@@ -376,6 +386,15 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
 
                 timeTextView.setText(timeSelected.substring(2, 4) + "/" +
                         timeSelected.substring(4,6) + "/" + timeSelected.substring(0,2));
+                dialogTime.dismiss();
+            }
+        });
+
+        allTimes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                timeSelected = "all times";
+                timeTextView.setText(timeSelected);
                 dialogTime.dismiss();
             }
         });
@@ -419,11 +438,26 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         mVideos.clear();
         mImages.clear();
         mAudios.clear();
+        mEventIds.clear();
 
 
-        if (timeSelected == null || genreSelected == null || locationSelected == null) {
-            Toast.makeText(getContext(), "Please complete all fields!", Toast.LENGTH_SHORT).show();
-            return;
+        adapter = new RecyclerViewAdapterSearch(getContext(), mTitles, mMessages, mGenres, mVideos,
+                mImages, mAudios, mEventIds);
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+
+
+        if (timeSelected.equals("all times") && genreSelected.equals("all genres") &&
+                locationSelected.equals("all locations"))  {
+            mDataBase.addListenerForSingleValueEvent(valueEventListenerAll);
+            mDataBaseArchived.addListenerForSingleValueEvent(valueEventListenerAll);
+
+        }
+        else {
+            mDataBase.addListenerForSingleValueEvent(valueEventListener);
+            mDataBaseArchived.addListenerForSingleValueEvent(valueEventListener);
         }
 
 
@@ -432,16 +466,6 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
 
 
 
-        adapter = new RecyclerViewAdapterSearch(getContext(), mTitles, mMessages, mGenres, mVideos, mImages, mAudios);
-        mRecyclerView.setAdapter(adapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-
-
-
-        mDataBase.addListenerForSingleValueEvent(valueEventListener);
-        mDataBaseArchived.addListenerForSingleValueEvent(valueEventListener);
-
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -449,13 +473,42 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
                      Toast.makeText(getContext(), "No results. Please try a different query!", Toast.LENGTH_SHORT).show();
                  }
             }
-        }, 1000);
+        }, 2000);
 
 
 
 
 
     }
+
+    /*======================================================================================*/
+
+    ValueEventListener valueEventListenerAll = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            if (dataSnapshot.exists()) {
+
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+
+                    mTitles.add(snapshot.child("title").getValue(String.class));
+                    mMessages.add(snapshot.child("message").getValue(String.class));
+                    mGenres.add(mDBGenres.get(snapshot.child("genre").getValue(String.class)));
+                    mVideos.add(snapshot.child("video").getValue(String.class));
+                    mImages.add(snapshot.child("image").getValue(String.class));
+                    mAudios.add(snapshot.child("sound").getValue(String.class));
+                    mEventIds.add(snapshot.getKey());
+                }
+            }
+            adapter = new RecyclerViewAdapterSearch(getContext(), mTitles, mMessages, mGenres, mVideos, mImages,
+                    mAudios, mEventIds);
+            mRecyclerView.setAdapter(adapter);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        }
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+        }
+    };
 
     /*======================================================================================*/
     ValueEventListener valueEventListener = new ValueEventListener() {
@@ -523,7 +576,8 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
                                 mVideos.add(snapshot.child("video").getValue(String.class));
                                 mImages.add(snapshot.child("image").getValue(String.class));
                                 mAudios.add(snapshot.child("sound").getValue(String.class));
- 
+                                mEventIds.add(snapshot.getKey());
+
 
                             }
 
@@ -532,7 +586,8 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
                     }
                 }
             }
-            adapter = new RecyclerViewAdapterSearch(getContext(), mTitles, mMessages, mGenres, mVideos, mImages, mAudios);
+            adapter = new RecyclerViewAdapterSearch(getContext(), mTitles, mMessages, mGenres, mVideos, mImages,
+                    mAudios, mEventIds);
             mRecyclerView.setAdapter(adapter);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         }
@@ -577,6 +632,7 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         List<String> newVideos = new ArrayList<>();
         List<String> newImages = new ArrayList<>();
         List<String> newAudios = new ArrayList<>();
+        List<String> newEventIDs = new ArrayList<>();
 
         //for (String value: mMessages) {
 
@@ -590,8 +646,10 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
                 newVideos.add(mVideos.get(i));
                 newImages.add(mImages.get(i));
                 newAudios.add(mAudios.get(i));
+                newEventIDs.add(mEventIds.get(i));
             }
-            adapter.updateList(newTitles, newMessages, newGenres, newVideos, newImages,newAudios);
+            adapter.updateList(newTitles, newMessages, newGenres, newVideos, newImages,
+                    newAudios, newEventIDs);
         }
 
 
