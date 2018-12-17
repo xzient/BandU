@@ -52,6 +52,7 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
     private DatabaseReference mDataBase2;
     private DatabaseReference mDataBase3;
     private DatabaseReference mDataBase4;
+    private DatabaseReference mDataBase5;
     private String mUserId;
 
 
@@ -116,10 +117,11 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
                 setTitle("Feed");
                 getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new HomeReaderFragment()).addToBackStack(TAG).commit();
                 break;
-            case R.id.nav_reader_map:
-                startActivity(new Intent(BaseActivityReader.this, MapsActivity.class));
-                setTitle("Map");
+            case R.id.nav_reader_favorite:
+                setTitle("Favorite");
+                getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new FavoriteFragment()).addToBackStack(TAG).commit();
                 break;
+
             case R.id.nav_reader_search:
                 setTitle("Search");
                 getSupportFragmentManager().beginTransaction().replace(R.id.reader_fragment_container, new SearchFragment()).addToBackStack(TAG).commit();
@@ -161,6 +163,7 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
         mDataBase2 = FirebaseDatabase.getInstance().getReference("server").child("archivedusers").child(mUserId);
         mDataBase3 = FirebaseDatabase.getInstance().getReference("server").child("archivedgenreuser");
         mDataBase4 = FirebaseDatabase.getInstance().getReference("server").child("archivedcityuser");
+        mDataBase5 = FirebaseDatabase.getInstance().getReference("server").child("archivedfavorites");
 
 
 
@@ -191,6 +194,10 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
         currentGenresSubsQuery = FirebaseDatabase.getInstance().getReference("server")
                 .child("cityuser").orderByChild(mUserId).equalTo(true);
         currentGenresSubsQuery.addListenerForSingleValueEvent(valueEventListener2);
+
+        currentGenresSubsQuery = FirebaseDatabase.getInstance().getReference("server")
+                .child("favorites").orderByChild(mUserId).equalTo(true);
+        currentGenresSubsQuery.addListenerForSingleValueEvent(valueEventListener3);
 
 
 
@@ -243,6 +250,23 @@ public class BaseActivityReader extends AppCompatActivity implements NavigationV
             if (dataSnapshot.exists()) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     mDataBase4.child(snapshot.getKey()).child(mUserId).setValue(true);
+
+                    snapshot.child(mUserId).getRef().removeValue();
+                }
+            }
+        }
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Toast.makeText(BaseActivityReader.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    ValueEventListener valueEventListener3 = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            if (dataSnapshot.exists()) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    mDataBase5.child(snapshot.getKey()).child(mUserId).setValue(true);
 
                     snapshot.child(mUserId).getRef().removeValue();
                 }

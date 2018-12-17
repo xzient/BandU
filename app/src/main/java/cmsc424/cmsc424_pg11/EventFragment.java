@@ -1,12 +1,14 @@
 package cmsc424.cmsc424_pg11;
 
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -28,8 +30,12 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,11 +57,16 @@ public class EventFragment extends Fragment {
 
     Drawable drawableStart;
     Drawable drawablePause;
+    DatabaseReference mRef;
+    String mUserID;
 
     SeekBar seekBar;
     Handler handler;
     Runnable runnable;
 
+    ImageView addToFavorites;
+    String eventId;
+    Boolean alreadyFav = false;
 
     @Nullable
     @Override
@@ -66,6 +77,11 @@ public class EventFragment extends Fragment {
 
         bundle = this.getArguments();
         handler = new Handler();
+
+        mUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+
+
 
         mTitle = view.findViewById(R.id.event_fragment_title);
         mGenre = view.findViewById(R.id.event_fragment_genre);
@@ -78,6 +94,11 @@ public class EventFragment extends Fragment {
         mAudio = new MediaPlayer();
         button = view.findViewById(R.id.event_fragment_button_audio);
         seekBar = view.findViewById(R.id.event_fragment_seekbar);
+        addToFavorites = view.findViewById(R.id.event_fragment_add_to_favorites);
+
+        mRef = FirebaseDatabase.getInstance().getReference("server").child("favorites");
+
+
 
         String videoPath = bundle.getString("Video");
         String imagePath = bundle.getString("Image");
@@ -91,12 +112,69 @@ public class EventFragment extends Fragment {
         drawablePause = getResources().getDrawable(R.drawable.ic_pause);
 
 
+
+        if(bundle != null) {
+            eventId = bundle.getString("ID");
+            mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if( dataSnapshot.hasChild(eventId) && dataSnapshot.child(eventId).hasChild(mUserID)) {
+                        addToFavorites.setBackgroundResource(R.drawable.ic_star);
+                        alreadyFav = true;
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+        }
+
+
+
+
+
+
+
         //Set Values
         if(bundle != null) {
+
+            addToFavorites.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    if (alreadyFav) {
+                        mRef.child(eventId).child(mUserID).removeValue();
+                        Toast.makeText(getContext(), "Event removed from favorites", Toast.LENGTH_SHORT).show();
+                        addToFavorites.setBackgroundResource(R.drawable.ic_star_border);
+                        alreadyFav = false;
+                    }
+                    else {
+                        mRef.child(eventId).child(mUserID).setValue(true);
+                        Toast.makeText(getContext(), "Event added to favorites", Toast.LENGTH_SHORT).show();
+                        addToFavorites.setBackgroundResource(R.drawable.ic_star);
+                        alreadyFav = true;
+                    }
+
+
+                }
+            });
+
+
+
 
             mTitle.setText(bundle.getString("Title"));
             mGenre.setText(bundle.getString("Genre"));
             mMessage.setText(bundle.getString("Message"));
+
+
+            if (bundle.getString("Genre").contains("Shoegaze")) {
+                view.setBackgroundColor(getResources().getColor(R.color.colorShoegaze));
+            }
+
+
+
 
 
             //Video

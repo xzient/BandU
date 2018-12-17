@@ -59,7 +59,7 @@
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="1"
-            android:text="-----"
+            android:text="all genres"
             android:textAlignment="center"
             android:textSize="15sp"
             android:layout_margin="3dp"
@@ -72,7 +72,7 @@
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="1"
-            android:text="-----"
+            android:text="all locations"
             android:textAlignment="center"
             android:textSize="15sp"
             android:layout_margin="3dp"
@@ -85,7 +85,7 @@
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="1"
-            android:text="-----"
+            android:text="all times"
             android:textAlignment="center"
             android:textSize="15sp"
             android:layout_margin="3dp"
@@ -102,17 +102,18 @@
     </LinearLayout>
 
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
         <android.support.v7.widget.RecyclerView
-
-
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/recycler_view_search"/>
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </LinearLayout>
 
 
 

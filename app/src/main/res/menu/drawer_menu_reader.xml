@@ -9,9 +9,9 @@
             android:title="@string/nav_home"
             android:icon="@drawable/ic_home_white"/>
         <item
-            android:id="@+id/nav_reader_map"
-            android:title="@string/nav_map"
-            android:icon="@drawable/ic_map_white"/>
+            android:id="@+id/nav_reader_favorite"
+            android:title="Favorites"
+            android:icon="@drawable/ic_star"/>
         <item
             android:id="@+id/nav_reader_search"
             android:title="@string/nav_search"

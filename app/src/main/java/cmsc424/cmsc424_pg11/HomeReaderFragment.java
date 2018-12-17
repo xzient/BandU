@@ -56,6 +56,7 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
     private ArrayList<String> mVideos = new ArrayList<>();
     private ArrayList<String> mImages = new ArrayList<>();
     private ArrayList<String> mAudios = new ArrayList<>();
+    private ArrayList<String> mEventIds = new ArrayList<>();
 
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter adapter;
@@ -252,7 +253,7 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                adapter = new RecyclerViewAdapter(getContext(), mTitles, mMessages, mGenres, mVideos, mImages, mAudios);
+                adapter = new RecyclerViewAdapter(getContext(), mTitles, mMessages, mGenres, mVideos, mImages, mAudios, mEventIds);
                 mRecyclerView.setAdapter(adapter);
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                 mDataBase.addListenerForSingleValueEvent(valueEventListener);
@@ -275,6 +276,7 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
             mVideos.clear();
             mImages.clear();
             mAudios.clear();
+            mEventIds.clear();
 
             if (dataSnapshot.exists()) {
                 //Toast.makeText(BaseActivityReader.this, "Hello", Toast.LENGTH_SHORT).show();
@@ -310,7 +312,7 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
 
 
                                 //Toast.makeText(getContext(), "Event range: " + distanceInMiles, Toast.LENGTH_SHORT).show();
-                                Log.d(TAG, "onDataChange: " + snapshot.getKey());
+                                //Log.d(TAG, "onDataChange: " + snapshot.getKey());
 
                                 //Date condition
                                 String startTime =  snapshot.child("start_time").getValue(Long.class).toString();
@@ -325,6 +327,7 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
                                     mVideos.add(snapshot.child("video").getValue(String.class));
                                     mImages.add(snapshot.child("image").getValue(String.class));
                                     mAudios.add(snapshot.child("sound").getValue(String.class));
+                                    mEventIds.add(snapshot.getKey());
                                 }
 
                                 break; //Break from loop
@@ -433,7 +436,7 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
                             Log.e(TAG, "Exception: %s", task.getException());
 
 
-                            Toast.makeText(getContext(), "Location not found!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "No current GPS location found!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -459,6 +462,8 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
         try {
             List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
             Address obj = addresses.get(0);
+
+            //Toast.makeText(context, obj.getLocality(), Toast.LENGTH_SHORT).show();
 
             /*
             String add = obj.getAddressLine(0);
@@ -599,7 +604,24 @@ public class HomeReaderFragment extends Fragment implements SwipeRefreshLayout.O
                 }
             }
             //Add current location
-            mUserLocations.put("00000", new double[]{currentLat, currentLong});
+            if (currentLat == null) {
+                mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        currentLat = dataSnapshot.child("latitude").getValue(Double.class);
+                        currentLong = dataSnapshot.child("longitude").getValue(Double.class);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
+
+            }
+            else {
+                mUserLocations.put("00000", new double[]{currentLat, currentLong});
+            }
+            //mUserLocations.put("00000", new double[]{currentLat, currentLong});
             //Toast.makeText(getContext(), "Size of UserLocations: " + mUserLocations.size(), Toast.LENGTH_SHORT).show();
         }
         @Override

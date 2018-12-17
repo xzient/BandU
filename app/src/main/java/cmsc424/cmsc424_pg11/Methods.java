@@ -60,10 +60,19 @@ public class Methods {
      * @return
      */
     public static int checkStringValue(String a, String b) {
+
+        //Less
+        //Higher
+        //None
         String currA = a.substring(0, 2);
         String currB = b.substring(0, 2);
 
-        if(currA.equals(currB)) { //Root level
+        if(currA.equals("00")) {
+            return 1;
+        }
+        else if (currB.equals("00")) {
+            return 0;
+        }else if(currA.equals(currB)) { //Root level
             currA = a.substring(2, 4);
             currB = b.substring(2, 4);
 

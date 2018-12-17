@@ -2,12 +2,10 @@ package cmsc424.cmsc424_pg11;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,7 +16,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
+public class RecyclerViewAdapterFavorite extends RecyclerView.Adapter<RecyclerViewAdapterFavorite.ViewHolder>{
 
     private static final String TAG = "RecyclerViewAdapter";
 
@@ -31,8 +29,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private ArrayList<String> mEventIds = new ArrayList<>();
     private Context mContext;
 
-    public RecyclerViewAdapter(Context mContext, ArrayList<String> mTitles, ArrayList<String> mMessages, ArrayList<String> mGenres, ArrayList<String> mVideos,
-                               ArrayList<String> mImages, ArrayList<String> mAudios, ArrayList<String> mEventIds) {
+    public RecyclerViewAdapterFavorite(Context mContext, ArrayList<String> mTitles, ArrayList<String> mMessages, ArrayList<String> mGenres, ArrayList<String> mVideos,
+                                       ArrayList<String> mImages, ArrayList<String> mAudios, ArrayList<String> mEventIds) {
         this.mTitles = mTitles;
         this.mMessages = mMessages;
         this.mGenres = mGenres;
